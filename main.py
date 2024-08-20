@@ -18,7 +18,6 @@ def main(page: ft.Page):
    nodeB.append_input("val", "fa")
 
 
-
    page.add(ft.Stack(controls=[nodeA, nodeB, edge], width=1000, height=500))
  
 ft.app(target=main)
