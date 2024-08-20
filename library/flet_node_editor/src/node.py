@@ -17,6 +17,8 @@ class Node(ft.GestureDetector):
         self.next_obj_top = 40
         self.obj_width = width
         self.obj_height = 40
+        self.disp_obj_offset = 10
+        self.inout_point_diameter = 20
 
         self.mouse_cursor = ft.MouseCursor.MOVE
         self.on_pan_update = self.drag
@@ -29,7 +31,14 @@ class Node(ft.GestureDetector):
             border_radius=ft.border_radius.all(6),
             bgcolor=ft.colors.AMBER_100,
             content=ft.Stack(
-                [ft.Text("hello")],
+                [
+                    ft.Container(
+                        bgcolor=ft.colors.WHITE,
+                        width=width-20,
+                        height=height,
+                        left=self.disp_obj_offset,
+                    ),
+                ],
                 ref=self.main_content,
                 ),
         )
@@ -38,16 +47,10 @@ class Node(ft.GestureDetector):
        e.control.top = max(0, e.control.top + e.delta_y)
        e.control.left = max(0, e.control.left + e.delta_x)
        e.control.update()
-       self.re_draw_connection()
+       self.re_draw_connection(e)
 
-    def re_draw_connection(self):
-        if(self.target_node is None):
-            return
-        
-        draw_len_x = self.left - self.target_node.left
-        draw_len_y = self.top - self.target_node.top
-        draw_len = math.sqrt(draw_len_x**2 + draw_len_y**2)
-        print(draw_len)
+    def re_draw_connection(self, e):
+        self.edge.update_edge(e.control, e.control.left, e.control.top)
 
     def connect(self, target_node):
         self.target_node = target_node
@@ -61,23 +64,35 @@ class Node(ft.GestureDetector):
                             group="color",
                             content=ft.Container(
                                 key=id,
-                                width=20,
-                                height=20,
+                                width=self.inout_point_diameter,
+                                height=self.inout_point_diameter,
                                 bgcolor=ft.colors.BLACK,
                                 shape=ft.BoxShape.CIRCLE,
                             ),
                         )
         
-        view = ft.Row(
+        view = ft.Stack(
             [
-                ft.Text(
+                ft.Container(
+                    bgcolor=ft.colors.AMBER_900,
+                    width=self.obj_width,
+                ),
+                ft.Container(
+                    margin=ft.margin.only(left=self.inout_point_diameter),
+                    bgcolor=ft.colors.GREEN,
+                    content=ft.Text(
                     value=text, 
                     color=ft.colors.BLACK,
                     ),
-                draggable,
+                ),
+                ft.Container(
+                    left= self.obj_width - self.inout_point_diameter,
+                    content=draggable,
+                ),
             ],
             left=self.next_obj_left,
             top=self.next_obj_top,
+            expand=True,
         )
 
         self.next_obj_top += self.obj_height
@@ -88,28 +103,35 @@ class Node(ft.GestureDetector):
 
     def append_input(self, id, text=None):
 
-        view = ft.Row(
-            [
-                ft.Text(
-                    value=text, 
-                    color=ft.colors.BLACK,
-                    ),
-                ft.DragTarget(
+        dragtarget = ft.DragTarget(
                     group="color",
                     content=ft.Container(
                         key=id,
-                        width=20,
-                        height=20,
+                        width=self.inout_point_diameter,
+                        height=self.inout_point_diameter,
                         bgcolor=ft.colors.BLUE_GREY_100,
                         shape=ft.BoxShape.CIRCLE,
                     ),
                     on_will_accept=self.drag_will_accept,
                     on_accept=self.drag_accept,
                     on_leave=self.drag_leave,
+                )
+
+        view = ft.Stack(
+            [
+                dragtarget,
+                ft.Container(
+                    margin=ft.margin.only(left=self.inout_point_diameter),
+                    bgcolor=ft.colors.GREEN,
+                    content=ft.Text(
+                    value=text, 
+                    color=ft.colors.BLACK,
+                    ),
                 ),
             ],
             left=self.next_obj_left,
             top=self.next_obj_top,
+            expand=True,
         )
         self.next_obj_top += self.obj_height
         
@@ -128,16 +150,16 @@ class Node(ft.GestureDetector):
     def drag_accept(self, e: ft.DragTargetAcceptEvent):
         src = self.page.get_control(e.src_id)
 
-        src_node = src.content.parent.parent.parent.parent.parent
+        src_node = src.content.parent.parent.parent.parent.parent.parent
         target_node = e.control.parent.parent.parent.parent
 
-        src_node_item = src.content.parent.parent
+        src_node_item = src.content.parent.parent.parent
         target_node_item = e.control.parent
 
-        x = target_node_item.left + target_node.left
-        y = target_node_item.top + target_node.top
-        target_x = src_node_item.left + src_node.left
-        target_y = src_node_item.top + src_node.top
+        target_x = target_node_item.left + target_node.left + target_node.inout_point_diameter/2
+        target_y = target_node_item.top + target_node.top + target_node.inout_point_diameter/2
+        x = src_node_item.left + src_node.left + src_node.obj_width - src_node.inout_point_diameter/2
+        y = src_node_item.top + src_node.top + src_node.inout_point_diameter/2
 
         top_column = e.control.parent.parent
         top_node = top_column.parent.parent

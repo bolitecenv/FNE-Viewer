@@ -17,6 +17,8 @@ class edge_constrain():
                     style=ft.PaintingStyle.STROKE,
                 ),
             )
+        
+    
 
 class Edge(cv.Canvas):
     def __init__(self):
@@ -34,8 +36,20 @@ class Edge(cv.Canvas):
             node_out_item_id,
             x, y ,target_x, target_y,
         )
-        print(vars(new_edge_st))
+        self.edges.append(new_edge_st)
         self.shapes.append(
             new_edge_st.edge
         )
         self.update()
+
+    def update_edge(self, node, x, y):
+        for n in self.shapes:
+            if(n.node_in is node):
+                n.target_x = x
+                n.target_y = y
+                self.update()
+            elif(n.node_out is node):
+                n.x = x
+                n.y = y
+                self.update()
+
