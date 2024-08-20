@@ -4,6 +4,12 @@ import math
 
 from .edge import Edge
 
+class data_param():
+    def __init__(self, id, x, y):
+        self.id = id
+        self.x = x
+        self.y = y
+
 class Node(ft.GestureDetector):
     def __init__(self, width, height, top, left, edge):
         super().__init__()
@@ -33,6 +39,7 @@ class Node(ft.GestureDetector):
             content=ft.Stack(
                 [
                     ft.Container(
+                        key="info",
                         bgcolor=ft.colors.WHITE,
                         width=width-20,
                         height=height,
@@ -50,7 +57,10 @@ class Node(ft.GestureDetector):
        self.re_draw_connection(e)
 
     def re_draw_connection(self, e):
-        self.edge.update_edge(e.control, e.control.left, e.control.top)
+        stack_obj = e.control.content.content
+        for n in stack_obj.controls:
+            if(n.key == "obj"):
+                self.edge.update_edge(e.control, n.data.id , n.data.x + e.control.left, n.data.y + e.control.top)
 
     def connect(self, target_node):
         self.target_node = target_node
@@ -60,6 +70,10 @@ class Node(ft.GestureDetector):
         print(draw_len)
 
     def append_output(self, id, text=None):
+        output_pointer_pos_x = self.next_obj_left + self.obj_width - self.inout_point_diameter/2
+        output_pointer_pos_y = self.next_obj_top + self.inout_point_diameter/2
+        m_data_param = data_param(id, output_pointer_pos_x, output_pointer_pos_y)
+
         draggable = ft.Draggable(
                             group="color",
                             content=ft.Container(
@@ -90,6 +104,8 @@ class Node(ft.GestureDetector):
                     content=draggable,
                 ),
             ],
+            key="obj",
+            data=m_data_param,
             left=self.next_obj_left,
             top=self.next_obj_top,
             expand=True,
@@ -102,6 +118,9 @@ class Node(ft.GestureDetector):
         self.outputs.append(id)
 
     def append_input(self, id, text=None):
+        output_pointer_pos_x = self.next_obj_left + self.inout_point_diameter/2
+        output_pointer_pos_y = self.next_obj_top + self.inout_point_diameter/2
+        m_data_param = data_param(id, output_pointer_pos_x, output_pointer_pos_y)
 
         dragtarget = ft.DragTarget(
                     group="color",
@@ -119,7 +138,9 @@ class Node(ft.GestureDetector):
 
         view = ft.Stack(
             [
-                dragtarget,
+                ft.Container(
+                    content=dragtarget,
+                ),
                 ft.Container(
                     margin=ft.margin.only(left=self.inout_point_diameter),
                     bgcolor=ft.colors.GREEN,
@@ -129,6 +150,8 @@ class Node(ft.GestureDetector):
                     ),
                 ),
             ],
+            key="obj",
+            data=m_data_param,
             left=self.next_obj_left,
             top=self.next_obj_top,
             expand=True,
@@ -151,10 +174,10 @@ class Node(ft.GestureDetector):
         src = self.page.get_control(e.src_id)
 
         src_node = src.content.parent.parent.parent.parent.parent.parent
-        target_node = e.control.parent.parent.parent.parent
+        target_node = e.control.parent.parent.parent.parent.parent
 
         src_node_item = src.content.parent.parent.parent
-        target_node_item = e.control.parent
+        target_node_item = e.control.parent.parent
 
         target_x = target_node_item.left + target_node.left + target_node.inout_point_diameter/2
         target_y = target_node_item.top + target_node.top + target_node.inout_point_diameter/2
