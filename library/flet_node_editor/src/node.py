@@ -10,6 +10,13 @@ class data_param():
         self.x = x
         self.y = y
 
+class NodeEvent():
+    def __init__(self, src_node, target_node, src_item_id, target_item_id) -> None:
+        self.src_node = src_node
+        self.target_node = target_node
+        self.src_item_id = src_item_id
+        self.target_item_id = target_item_id
+
 class Node(ft.GestureDetector):
     def __init__(self, width, height, top, left, edge):
         super().__init__()
@@ -17,6 +24,7 @@ class Node(ft.GestureDetector):
         self.edge = edge
 
         self.target_node = None
+        self.callback_handler = None
         self.inputs = []
         self.outputs = []
         self.next_obj_left = 0
@@ -67,6 +75,9 @@ class Node(ft.GestureDetector):
         draw_len_x = self.left - self.target_node.left
         draw_len_y = self.top - self.target_node.top
         draw_len = math.sqrt(draw_len_x**2 + draw_len_y**2)
+
+    def register_callback(self, callback):
+        self.callback_handler = callback
 
     def append_output(self, id, text=None):
         output_pointer_pos_x = self.next_obj_left + self.obj_width - self.inout_point_diameter/2
@@ -182,12 +193,13 @@ class Node(ft.GestureDetector):
         target_y = target_node_item.top + target_node.top + target_node.inout_point_diameter/2
         x = src_node_item.left + src_node.left + src_node.obj_width - src_node.inout_point_diameter/2
         y = src_node_item.top + src_node.top + src_node.inout_point_diameter/2
-
-        top_column = e.control.parent.parent
-        top_node = top_column.parent.parent
         
         self.edge.add(target_node, src_node, e.control.content.key, src.content.key, x, y, target_x, target_y)
         
+        if(self.callback_handler):
+            m_node_event = NodeEvent(src_node, target_node, src.content.key, e.control.content.key)
+            self.callback_handler(m_node_event)
+
         e.control.content.bgcolor = src.content.bgcolor
         e.control.content.border = None
         e.control.update()
