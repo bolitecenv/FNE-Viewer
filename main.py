@@ -15,7 +15,10 @@ def main(page: ft.Page):
    nodeB.connect(nodeA)
 
    nodeA.append_output("volume", "tamashiro")
+   nodeA.append_output("af", "top is good")
+   nodeA.append_input("senchan", "sen suki")
    nodeB.append_input("val", "fa")
+   nodeB.append_input("bb", "toshinori")
 
    page.theme = ft.theme.Theme(color_scheme_seed="green")
    page.add(ft.Stack(controls=[nodeA, nodeB, edge], width=1000, height=500))

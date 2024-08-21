@@ -67,7 +67,6 @@ class Node(ft.GestureDetector):
         draw_len_x = self.left - self.target_node.left
         draw_len_y = self.top - self.target_node.top
         draw_len = math.sqrt(draw_len_x**2 + draw_len_y**2)
-        print(draw_len)
 
     def append_output(self, id, text=None):
         output_pointer_pos_x = self.next_obj_left + self.obj_width - self.inout_point_diameter/2
@@ -186,11 +185,9 @@ class Node(ft.GestureDetector):
 
         top_column = e.control.parent.parent
         top_node = top_column.parent.parent
-        print(vars(e.control.parent))
-        print(top_node.top)
-
+        
         self.edge.add(target_node, src_node, e.control.content.key, src.content.key, x, y, target_x, target_y)
-        print(f"{x} {y} {target_x} {target_y}")
+        
         e.control.content.bgcolor = src.content.bgcolor
         e.control.content.border = None
         e.control.update()
