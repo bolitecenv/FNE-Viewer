@@ -15,6 +15,8 @@ def main(page: ft.Page):
    nodeB = Node(200, 400, 100, 300, edge)
    nodeC = Node(100, 250, 0, 0, edge)
 
+   nodeA.append_header("he world")
+
    nodeA.append_output("volume", "tamashiro")
    nodeA.append_output("af", "top is good")
    nodeA.append_input("senchan", "sen suki")

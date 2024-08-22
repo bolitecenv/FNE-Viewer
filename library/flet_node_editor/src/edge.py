@@ -13,7 +13,7 @@ class edge_constrain():
         self.edge = cv.Path(
                 [
                     cv.Path.MoveTo(x, y),
-                    cv.Path.CubicTo( x + abs(target_x - x), y, target_x - x , target_y,target_x, target_y),
+                    cv.Path.CubicTo( x + abs(target_x - x)/2 , y, x + abs(target_x - x)/2, target_y,target_x, target_y),
                 ],
                 paint=ft.Paint(
                     stroke_width=2,
@@ -38,6 +38,8 @@ class Edge(cv.Canvas):
             node_out_item_id,
             x, y ,target_x, target_y,
         )
+
+
         
         self.shapes.append(
             new_edge_st.edge

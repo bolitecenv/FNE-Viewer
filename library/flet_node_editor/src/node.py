@@ -3,6 +3,7 @@ import flet as ft
 import math
 
 from .edge import Edge
+from .items import *
 
 class data_param():
     def __init__(self, id, x, y):
@@ -18,7 +19,7 @@ class NodeEvent():
         self.target_item_id = target_item_id
 
 class Node(ft.GestureDetector):
-    def __init__(self, width, height, top, left, edge):
+    def __init__(self, width, height, top, left, edge, style={}):
         super().__init__()
         self.main_content = ft.Ref[ft.Column()]
         self.edge = edge
@@ -30,9 +31,19 @@ class Node(ft.GestureDetector):
         self.next_obj_left = 0
         self.next_obj_top = 40
         self.obj_width = width
-        self.obj_height = 40
+        self.obj_height = 20
         self.disp_obj_offset = 10
         self.inout_point_diameter = 20
+
+        self.style_brim = style.get("brim", ft.colors.with_opacity(0.0, ft.colors.WHITE))
+        self.style_box = style.get("box", ft.colors.RED_50)
+        self.style_interface_in = style.get("interface_in", ft.colors.BLUE_100)
+        self.style_interface_out = style.get("interface_out", ft.colors.PURPLE_300)
+        self.style_text = style.get("text", ft.colors.BLACK)
+        self.style_item_bgcolor = style.get("item_bgcolor", ft.colors.with_opacity(0.0, ft.colors.WHITE))
+        self.style_item_edge = style.get("item_edge", ft.colors.with_opacity(0.0, ft.colors.WHITE))
+        self.style_header_text = style.get("header_text", ft.colors.BLACK)
+        self.style_header_bgcolor = style.get("header_bgcolor", ft.colors.BLUE_400)
 
         self.mouse_cursor = ft.MouseCursor.MOVE
         self.on_pan_update = self.drag
@@ -43,12 +54,13 @@ class Node(ft.GestureDetector):
             width=width,
             height=height,
             border_radius=ft.border_radius.all(6),
-            bgcolor=ft.colors.AMBER_100,
+            bgcolor=self.style_brim,
             content=ft.Stack(
                 [
                     ft.Container(
                         key="info",
-                        bgcolor=ft.colors.WHITE,
+                        border_radius=ft.border_radius.all(6),
+                        bgcolor=self.style_box,
                         width=width-20,
                         height=height,
                         left=self.disp_obj_offset,
@@ -79,47 +91,16 @@ class Node(ft.GestureDetector):
     def register_callback(self, callback):
         self.callback_handler = callback
 
+    def append_header(self, text=None):
+        view = Item_Header(text, self)
+        self.content.content.controls.append(view)
+
     def append_output(self, id, text=None):
         output_pointer_pos_x = self.next_obj_left + self.obj_width - self.inout_point_diameter/2
         output_pointer_pos_y = self.next_obj_top + self.inout_point_diameter/2
         m_data_param = data_param(id, output_pointer_pos_x, output_pointer_pos_y)
-
-        draggable = ft.Draggable(
-                            group="color",
-                            content=ft.Container(
-                                key=id,
-                                width=self.inout_point_diameter,
-                                height=self.inout_point_diameter,
-                                bgcolor=ft.colors.BLACK,
-                                shape=ft.BoxShape.CIRCLE,
-                            ),
-                        )
-        
-        view = ft.Stack(
-            [
-                ft.Container(
-                    bgcolor=ft.colors.AMBER_900,
-                    width=self.obj_width,
-                ),
-                ft.Container(
-                    margin=ft.margin.only(left=self.inout_point_diameter),
-                    bgcolor=ft.colors.GREEN,
-                    content=ft.Text(
-                    value=text, 
-                    color=ft.colors.BLACK,
-                    ),
-                ),
-                ft.Container(
-                    left= self.obj_width - self.inout_point_diameter,
-                    content=draggable,
-                ),
-            ],
-            key="obj",
-            data=m_data_param,
-            left=self.next_obj_left,
-            top=self.next_obj_top,
-            expand=True,
-        )
+    
+        view = Item_Interface_IN(m_data_param, self.next_obj_left, self.next_obj_top, text, id, self)
 
         self.next_obj_top += self.obj_height
         
@@ -138,7 +119,7 @@ class Node(ft.GestureDetector):
                         key=id,
                         width=self.inout_point_diameter,
                         height=self.inout_point_diameter,
-                        bgcolor=ft.colors.BLUE_GREY_100,
+                        bgcolor=self.style_interface_in,
                         shape=ft.BoxShape.CIRCLE,
                     ),
                     on_will_accept=self.drag_will_accept,
@@ -153,10 +134,9 @@ class Node(ft.GestureDetector):
                 ),
                 ft.Container(
                     margin=ft.margin.only(left=self.inout_point_diameter),
-                    bgcolor=ft.colors.GREEN,
                     content=ft.Text(
                     value=text, 
-                    color=ft.colors.BLACK,
+                    color=self.style_text,
                     ),
                 ),
             ],
@@ -174,9 +154,6 @@ class Node(ft.GestureDetector):
 
 
     def drag_will_accept(self, e):
-        e.control.content.border = ft.border.all(
-            2, ft.colors.BLACK45 if e.data == "true" else ft.colors.RED
-        )
         
         e.control.update()
 
