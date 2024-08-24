@@ -29,17 +29,21 @@ class Node(ft.GestureDetector):
         self.inputs = []
         self.outputs = []
         self.next_obj_left = 0
-        self.next_obj_top = 40
-        self.obj_width = width
+        self.next_obj_top = 30
+        self.node_width = width
+        self.node_height = height
+        self.inout_point_diameter = 10
+        self.disp_obj_offset = self.inout_point_diameter/2
+        self.obj_width = self.node_width - self.inout_point_diameter
         self.obj_height = 20
-        self.disp_obj_offset = 10
-        self.inout_point_diameter = 20
+        
 
         self.style_brim = style.get("brim", ft.colors.with_opacity(0.0, ft.colors.WHITE))
         self.style_box = style.get("box", ft.colors.RED_50)
         self.style_interface_in = style.get("interface_in", ft.colors.BLUE_100)
         self.style_interface_out = style.get("interface_out", ft.colors.PURPLE_300)
         self.style_text = style.get("text", ft.colors.BLACK)
+        self.style_text_font_size = style.get("text_font_size", 8)
         self.style_item_bgcolor = style.get("item_bgcolor", ft.colors.with_opacity(0.0, ft.colors.WHITE))
         self.style_item_edge = style.get("item_edge", ft.colors.with_opacity(0.0, ft.colors.WHITE))
         self.style_header_text = style.get("header_text", ft.colors.BLACK)
@@ -51,8 +55,8 @@ class Node(ft.GestureDetector):
         self.top = top
         self.left = left
         self.content = ft.Container(
-            width=width,
-            height=height,
+            width=self.node_width,
+            height=self.node_height,
             border_radius=ft.border_radius.all(6),
             bgcolor=self.style_brim,
             content=ft.Stack(
@@ -61,8 +65,8 @@ class Node(ft.GestureDetector):
                         key="info",
                         border_radius=ft.border_radius.all(6),
                         bgcolor=self.style_box,
-                        width=width-20,
-                        height=height,
+                        width=self.obj_width,
+                        height=self.node_height,
                         left=self.disp_obj_offset,
                     ),
                 ],
@@ -96,7 +100,7 @@ class Node(ft.GestureDetector):
         self.content.content.controls.append(view)
 
     def append_output(self, id, text=None):
-        output_pointer_pos_x = self.next_obj_left + self.obj_width - self.inout_point_diameter/2
+        output_pointer_pos_x = self.next_obj_left + self.node_width - self.inout_point_diameter/2
         output_pointer_pos_y = self.next_obj_top + self.inout_point_diameter/2
         m_data_param = data_param(id, output_pointer_pos_x, output_pointer_pos_y)
     
@@ -168,7 +172,7 @@ class Node(ft.GestureDetector):
 
         target_x = target_node_item.left + target_node.left + target_node.inout_point_diameter/2
         target_y = target_node_item.top + target_node.top + target_node.inout_point_diameter/2
-        x = src_node_item.left + src_node.left + src_node.obj_width - src_node.inout_point_diameter/2
+        x = src_node_item.left + src_node.left + src_node.node_width - src_node.inout_point_diameter/2
         y = src_node_item.top + src_node.top + src_node.inout_point_diameter/2
         
         self.edge.add(target_node, src_node, e.control.content.key, src.content.key, x, y, target_x, target_y)

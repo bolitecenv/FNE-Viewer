@@ -6,11 +6,11 @@ class Item_Header(ft.Stack):
         super().__init__()
         self.left = param.disp_obj_offset
         self.top = 0
-        self.width = param.obj_width - 20
+        self.width = param.obj_width
         self.controls = [
             ft.Container(
                 bgcolor=param.style_header_bgcolor,
-                width=param.obj_width - 20,
+                width=param.obj_width,
                 height=20,
                 border_radius=ft.border_radius.only(top_left=6, top_right=6),
             ),
@@ -47,17 +47,27 @@ class Item_Interface_IN(ft.Stack):
         self.controls = [
                 ft.Container(
                     bgcolor=param.style_item_bgcolor,
-                    width=param.obj_width,
+                    width=param.node_width,
+                    height=param.obj_height,
+                ),
+                ft.Row(
+                    #margin=ft.margin.only(left=param.inout_point_diameter),
+                    left=param.disp_obj_offset,
+                    controls=[
+                        ft.Container(
+                            alignment=ft.alignment.center_right,
+                            padding=ft.padding.only(right=param.disp_obj_offset),
+                            width=param.obj_width,
+                            content=ft.Text(
+                                value=text,
+                                size=param.style_text_font_size,
+                                color=param.style_text,
+                            )
+                        ),
+                    ]
                 ),
                 ft.Container(
-                    margin=ft.margin.only(left=param.inout_point_diameter),
-                    content=ft.Text(
-                    value=text, 
-                    color=param.style_text,
-                    ),
-                ),
-                ft.Container(
-                    left= param.obj_width - param.inout_point_diameter,
+                    left= param.node_width - param.inout_point_diameter,
                     content=draggable,
                 ),
         ]

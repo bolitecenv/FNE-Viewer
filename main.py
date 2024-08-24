@@ -1,8 +1,6 @@
 import flet as ft
 
 from library.flet_node_editor import *
-# Use of GestureDetector for with on_pan_update event for dragging card
-# Absolute positioning of controls within stack
  
 def main(page: ft.Page):
 
