@@ -2,6 +2,7 @@ import flet as ft
 
 import math
 
+from .ndcss import *
 from .edge import Edge
 from .items import *
 
@@ -23,6 +24,8 @@ class Node(ft.GestureDetector):
         super().__init__()
         self.main_content = ft.Ref[ft.Column()]
         self.edge = edge
+        
+        self.ndcss = style
 
         self.target_node = None
         self.callback_handler = None
@@ -38,40 +41,33 @@ class Node(ft.GestureDetector):
         self.obj_height = 20
         
 
-        self.style_brim = style.get("brim", ft.colors.with_opacity(0.0, ft.colors.WHITE))
-        self.style_box = style.get("box", ft.colors.RED_50)
-        self.style_interface_in = style.get("interface_in", ft.colors.BLUE_100)
-        self.style_interface_out = style.get("interface_out", ft.colors.PURPLE_300)
-        self.style_text = style.get("text", ft.colors.BLACK)
-        self.style_text_font_size = style.get("text_font_size", 8)
-        self.style_item_bgcolor = style.get("item_bgcolor", ft.colors.with_opacity(0.0, ft.colors.WHITE))
-        self.style_item_edge = style.get("item_edge", ft.colors.with_opacity(0.0, ft.colors.WHITE))
-        self.style_header_text = style.get("header_text", ft.colors.BLACK)
-        self.style_header_bgcolor = style.get("header_bgcolor", ft.colors.BLUE_400)
-
-        self.mouse_cursor = ft.MouseCursor.MOVE
+        self.mouse_cursor = ft.MouseCursor.CLICK
         self.on_pan_update = self.drag
         self.drag_interval = 5
         self.top = top
         self.left = left
+        
+        node_style=self.ndcss.get("node", {})
+
         self.content = ft.Container(
+            **(self.ndcss.get("node_brim", {})),
             width=self.node_width,
             height=self.node_height,
-            border_radius=ft.border_radius.all(6),
-            bgcolor=self.style_brim,
+            border_radius= ft.border_radius.all(6),
             content=ft.Stack(
                 [
                     ft.Container(
                         key="info",
-                        border_radius=ft.border_radius.all(6),
-                        bgcolor=self.style_box,
+                        border_radius= ft.border_radius.all(6),
+                        border=ft.border.all(node_style.get("border_width"), node_style.get("border_color")),
+                        bgcolor=node_style.get("bgcolor"),
                         width=self.obj_width,
                         height=self.node_height,
                         left=self.disp_obj_offset,
                     ),
                 ],
                 ref=self.main_content,
-                ),
+            ),
         )
 
     def drag(self, e: ft.DragUpdateEvent):
@@ -96,7 +92,7 @@ class Node(ft.GestureDetector):
         self.callback_handler = callback
 
     def append_header(self, text=None):
-        view = Item_Header(text, self)
+        view = Item_Header(self, text=text, style=self.ndcss.get("Item_Header", {}))
         self.content.content.controls.append(view)
 
     def append_output(self, id, text=None):
@@ -104,7 +100,15 @@ class Node(ft.GestureDetector):
         output_pointer_pos_y = self.next_obj_top + self.inout_point_diameter/2
         m_data_param = data_param(id, output_pointer_pos_x, output_pointer_pos_y)
     
-        view = Item_Interface_IN(m_data_param, self.next_obj_left, self.next_obj_top, text, id, self)
+        view = Item_Interface_IN(
+                                    id,
+                                    self,
+                                    data=m_data_param,
+                                    left=self.next_obj_left,
+                                    top=self.next_obj_top,
+                                    text=text,
+                                    style=self.ndcss.get("Item_Interface_IN", {})
+                                 )
 
         self.next_obj_top += self.obj_height
         
@@ -117,39 +121,16 @@ class Node(ft.GestureDetector):
         output_pointer_pos_y = self.next_obj_top + self.inout_point_diameter/2
         m_data_param = data_param(id, output_pointer_pos_x, output_pointer_pos_y)
 
-        dragtarget = ft.DragTarget(
-                    group="color",
-                    content=ft.Container(
-                        key=id,
-                        width=self.inout_point_diameter,
-                        height=self.inout_point_diameter,
-                        bgcolor=self.style_interface_in,
-                        shape=ft.BoxShape.CIRCLE,
-                    ),
-                    on_will_accept=self.drag_will_accept,
-                    on_accept=self.drag_accept,
-                    on_leave=self.drag_leave,
-                )
+        view = Item_Interface_OUT(
+                                    id,
+                                    self,
+                                    data=m_data_param,
+                                    left=self.next_obj_left,
+                                    top=self.next_obj_top,
+                                    text=text,
+                                    style=self.ndcss.get("Item_Interface_OUT", {})
+                                 )
 
-        view = ft.Stack(
-            [
-                ft.Container(
-                    content=dragtarget,
-                ),
-                ft.Container(
-                    margin=ft.margin.only(left=self.inout_point_diameter),
-                    content=ft.Text(
-                    value=text, 
-                    color=self.style_text,
-                    ),
-                ),
-            ],
-            key="obj",
-            data=m_data_param,
-            left=self.next_obj_left,
-            top=self.next_obj_top,
-            expand=True,
-        )
         self.next_obj_top += self.obj_height
         
         self.content.content.controls.append(view)

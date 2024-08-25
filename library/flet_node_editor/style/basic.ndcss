@@ -1,0 +1,31 @@
+
+
+node {
+    bgcolor: #a0000000;
+    border_width: 0;
+    border_color: #00ff0000;
+}
+
+node_brim {
+    bgcolor: #00ffffff;
+}
+
+Item_Header {
+    bgcolor: #a0ff66B2;
+    text_color: #ff000000;
+    text_size: 15;
+}
+
+Item_Interface_IN {
+    bgcolor: #11000000;
+    inout_point_color: #eeccffe5;
+    text_color: #ffffffff;
+    text_size: 11;
+}
+
+Item_Interface_OUT {
+    bgcolor: #11000000;
+    inout_point_color: #eeccffe5;
+    text_color: #ffffffff;
+    text_size: 11;
+}
